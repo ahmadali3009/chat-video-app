@@ -23,6 +23,7 @@ io.on("connection" , (socket)=>{
             console.log("emailid and roomid", roomID)
             emitfromclient.set(roomID, emailID)
             socket.join(roomID);
+            socket.emit("joined-room" , {roomID})
             socket.broadcast.to(roomID).emit("user-joined" , {emailID});
         })
        
