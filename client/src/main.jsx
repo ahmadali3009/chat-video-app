@@ -8,11 +8,16 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import Homepage from './components/Homepage.jsx';
+import Roompage from './components/roompage.jsx'
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Homepage />,
+  },  
+  {
+    path: "/room/:id",
+    element: <Roompage/>,
   },
   
 ]);
