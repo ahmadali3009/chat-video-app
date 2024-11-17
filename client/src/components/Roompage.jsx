@@ -17,7 +17,6 @@ const Roompage = () => {
   return (
     <div>
       <h1> Video Audia and chat room </h1>
-      <button>add more user</button>
     </div>
   )
 }
