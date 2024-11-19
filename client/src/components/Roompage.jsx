@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react'
 import {useSocket} from "../context/Socket"
 const Roompage = () => {
-    let socket = useSocket()
+    let {socket} = useSocket()
+    // console.log(socket)
     let handlenewuser = (data) =>
         {
             console.log("data", data)
@@ -10,7 +11,11 @@ const Roompage = () => {
         }
     useEffect(()=>
         {
-            socket.on("user-joined" , handlenewuser)
+          if (!socket) {
+            console.error("Socket is not initialized");
+            return;
+        }    
+        socket.on("user-joined" , handlenewuser)
         },[socket])
 
 
