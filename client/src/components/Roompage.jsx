@@ -1,22 +1,33 @@
 import React, { useEffect } from 'react'
-import {useSocket} from "../context/Socket"
+import {useSocket } from "../context/Socket"
+import {usePeer} from "../context/Peer"
 const Roompage = () => {
+
     let {socket} = useSocket()
-    // console.log(socket)
-    let handlenewuser = (data) =>
+    let { createOffer , peer } = usePeer()
+    let handlenewuser = async (data) =>
         {
-            console.log("data", data)
             let {emailID} = data
-            console.log("user" , emailID)
+            console.log("incomming user", emailID)
+            let offer = await createOffer()
+            socket.emit("incomming-user" , {offer , emailID})
         }
+
+        let handleincommingusercall = async (data) =>
+          {
+              let {From, offer} = data
+              console.log("offer:" , offer )
+          }
+
     useEffect(()=>
         {
           if (!socket) {
             console.error("Socket is not initialized");
             return;
-        }    
+        }
         socket.on("user-joined" , handlenewuser)
-        },[socket])
+        socket.on("incomming-usercall" , handleincommingusercall)
+        },[socket , handlenewuser , handleincommingusercall])
 
 
   return (

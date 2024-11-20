@@ -23,7 +23,6 @@ const Homepage = () => {
   let handleinput = (e)=>
     {
       let {name , value} = e.target
-      console.log("name" , name ,"value" ,value)
       setinput({...input, [name]:value})
     }
 
