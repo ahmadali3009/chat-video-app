@@ -10,6 +10,7 @@ const Roompage = () => {
             let {emailID} = data
             console.log("incomming user", emailID)
             let offer = await createOffer()
+            console.log("inhandlenew user", offer)
             socket.emit("incomming-user" , {offer , emailID})
         }
 
