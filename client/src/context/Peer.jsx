@@ -13,6 +13,18 @@ export let PeerProvider = (props) => {
            return offer;
         }
 
+
+    let createAnswer = async (offer)=>
+        {
+            await peer.setRemoteDescription(offer)
+            let ans = peer.createAnswer()
+            await peer.setLocalDescription(ans)
+            return ans
+        } 
+    let setremoteans = async (ans)=>{
+        await peer.setRemoteDescription(ans)
+    }
+
     let peer = useMemo(() => new RTCPeerConnection({
         iceServers: [
             {
@@ -25,7 +37,7 @@ export let PeerProvider = (props) => {
     }), [])
     return (
 
-        <PeerContext.Provider value={{peer , createOffer}}>
+        <PeerContext.Provider value={{peer , createOffer , createAnswer , setremoteans}}>
             {props.children}
         </PeerContext.Provider>
     )

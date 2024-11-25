@@ -30,7 +30,12 @@ io.on("connection" , (socket)=>{
             let fromEmail = socketidtoemail.get(socket.id)
             let socketid = emailtosocketid.get(emailID)
             socket.to(socketid).emit("incomming-usercall",{From: fromEmail , offer})
-
+        })
+        
+        socket.on("call-accepted" , (data)=>{
+            let {emailID , ans} = data;
+            let socketid = emailtosocketid.get(emailID)
+            socket.to(socketid).emit("call-accepted" , {ans})
         })
 
        
