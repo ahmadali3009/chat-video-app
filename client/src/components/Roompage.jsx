@@ -5,7 +5,7 @@ import Reactplayer from "react-player"
 const Roompage = () => {
   let [mystream , setmystream] = useState(null);
   let { socket } = useSocket()
-  let { createOffer, peer, createAnswer, setremoteans } = usePeer()
+  let { createOffer, peer, createAnswer, setremoteans , sendStream , remotestream} = usePeer()
   const handlenewuser = useCallback(
     async (data) => {
       let { emailID } = data;
@@ -68,6 +68,8 @@ const Roompage = () => {
     <div>
       <h1> Video Audia and chat room </h1>
       <Reactplayer url={mystream} playing />
+      <Reactplayer url={remotestream} playing/>
+      <button onClick={e=>sendStream(mystream)} >Connected to user video</button>
     </div>
   )
 }
