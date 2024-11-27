@@ -24,7 +24,14 @@ export let PeerProvider = (props) => {
     let setremoteans = async (ans)=>{
         await peer.setRemoteDescription(ans)
     }
-
+    let sendStream = async (stream)=>
+        {
+            let tracks = stream.getTracks();
+            for (let track of tracks)
+                {
+                    peer.addTrack(track , stream)
+                }
+        }
     let peer = useMemo(() => new RTCPeerConnection({
         iceServers: [
             {

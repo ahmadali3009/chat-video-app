@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useSocket } from "../context/Socket"
 import { usePeer } from "../context/Peer"
+import Reactplayer from "react-player"
 const Roompage = () => {
-
+  let [mystream , setmystream] = useState(null);
   let { socket } = useSocket()
   let { createOffer, peer, createAnswer, setremoteans } = usePeer()
   const handlenewuser = useCallback(
@@ -47,10 +48,26 @@ const Roompage = () => {
     };
   }, [socket, handlenewuser, handleincommingusercall, handlecallaccepted])
 
+  let handlemystearm = useCallback( async()=>
+    {
+      let stream = await navigator.mediaDevices.getUserMedia({
+        audio : true , 
+        video : true,
+      })
+      setmystream(stream)
+    },[])
+
+  useEffect(()=>
+    {
+      handlemystearm()
+
+      
+    },[handlemystearm])
 
   return (
     <div>
       <h1> Video Audia and chat room </h1>
+      <Reactplayer url={mystream} playing />
     </div>
   )
 }
