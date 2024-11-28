@@ -39,15 +39,7 @@ export let PeerProvider = (props) => {
             setremotestream(stream)
         },[])
 
-        useEffect(()=>
-            {
-                peer.addEventListener("track" , handletrackwithstream)
-
-                return ()=>
-                    {
-                        peer.removeEventListener("track" , handletrackwithstream)
-                    }
-            },[peer , handletrackwithstream])
+        
 
 
     let peer = useMemo(() => new RTCPeerConnection({
@@ -60,6 +52,17 @@ export let PeerProvider = (props) => {
             },
         ],
     }), [])
+
+
+    useEffect(()=>
+        {
+            peer.addEventListener("track" , handletrackwithstream)
+
+            return ()=>
+                {
+                    peer.removeEventListener("track" , handletrackwithstream)
+                }
+        },[peer , handletrackwithstream])
     return (
 
         <PeerContext.Provider value={{peer , createOffer , createAnswer , setremoteans , sendStream , remotestream}}>

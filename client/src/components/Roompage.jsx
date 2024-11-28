@@ -27,6 +27,7 @@ const Roompage = () => {
   let handlecallaccepted = useCallback (async (data) => {
     let { ans } = data
     console.log("call got accecpted", ans)
+    sendStream(mystream)
     await setremoteans(ans)
 
   },[setremoteans])
