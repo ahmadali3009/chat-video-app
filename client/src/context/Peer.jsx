@@ -35,8 +35,8 @@ export let PeerProvider = (props) => {
         }
     let handletrackwithstream = useCallback((ev)=>
         {
-            let stream = ev.streams;
-            setremotestream(stream)
+            let streams = ev.streams;
+            setremotestream(streams[0])
         },[])
 
         

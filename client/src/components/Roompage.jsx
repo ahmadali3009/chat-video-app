@@ -3,9 +3,9 @@ import { useSocket } from "../context/Socket"
 import { usePeer } from "../context/Peer"
 import Reactplayer from "react-player"
 const Roompage = () => {
-  let [mystream , setmystream] = useState(null);
+  let [mystream, setmystream] = useState(null);
   let { socket } = useSocket()
-  let { createOffer, peer, createAnswer, setremoteans , sendStream , remotestream} = usePeer()
+  let { createOffer, peer, createAnswer, setremoteans, sendStream, remotestream } = usePeer()
   const handlenewuser = useCallback(
     async (data) => {
       let { emailID } = data;
@@ -16,21 +16,21 @@ const Roompage = () => {
     },
     [socket, createOffer] // Dependencies
   );
-  let handleincommingusercall = useCallback( async (data) => {
+  let handleincommingusercall = useCallback(async (data) => {
     let { From, offer } = data
     console.log("offer:", offer)
     const ans = await createAnswer(offer)
     console.log("answer creating...", ans)
     socket.emit("call-accepted", { emailID: From, ans })
-  },[socket , createAnswer ])
+  }, [socket, createAnswer])
 
-  let handlecallaccepted = useCallback (async (data) => {
+  let handlecallaccepted = useCallback(async (data) => {
     let { ans } = data
     console.log("call got accecpted", ans)
-    sendStream(mystream)
+    // sendStream(mystream)
     await setremoteans(ans)
 
-  },[setremoteans])
+  }, [setremoteans])
 
   useEffect(() => {
     if (!socket) {
@@ -49,28 +49,33 @@ const Roompage = () => {
     };
   }, [socket, handlenewuser, handleincommingusercall, handlecallaccepted])
 
-  let handlemystearm = useCallback( async()=>
-    {
-      let stream = await navigator.mediaDevices.getUserMedia({
-        audio : true , 
-        video : true,
-      })
-      setmystream(stream)
-    },[])
+  let handlemystearm = useCallback(async () => {
+    navigator.mediaDevices.enumerateDevices().then(devices => {
+      console.log("Available devices:", devices);
+  });
+    navigator.permissions.query({ name: "camera" }).then(permissionStatus => {
+      console.log("Camera permission status:", permissionStatus.state);
+    });
+    let stream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: true,
+    })
+    console.log("Camera started");
+    setmystream(stream)
+  }, [])
 
-  useEffect(()=>
-    {
-      handlemystearm()
+  useEffect(() => {
+    handlemystearm()
 
-      
-    },[handlemystearm])
+
+  }, [handlemystearm])
 
   return (
     <div>
       <h1> Video Audia and chat room </h1>
-      <Reactplayer url={mystream} playing />
-      <Reactplayer url={remotestream} playing/>
-      <button onClick={e=>sendStream(mystream)} >Connected to user video</button>
+      <Reactplayer url={mystream} playing muted />
+      <Reactplayer url={remotestream} playing />
+      <button onClick={e => sendStream(mystream)} >Connected to user video</button>
     </div>
   )
 }
