@@ -39,8 +39,10 @@ export let PeerProvider = (props) => {
             setremotestream(streams[0])
         },[])
 
-        
-
+    let handlenegotiation = useCallback(()=>
+        {
+            console.log("opss negotiation needed")
+        },[])
 
     let peer = useMemo(() => new RTCPeerConnection({
         iceServers: [
@@ -57,12 +59,15 @@ export let PeerProvider = (props) => {
     useEffect(()=>
         {
             peer.addEventListener("track" , handletrackwithstream)
+            peer.addEventListener("negotiationneeded" , handlenegotiation)
 
             return ()=>
                 {
                     peer.removeEventListener("track" , handletrackwithstream)
+                    peer.removeEventListener("negotiationneeded" , handlenegotiation)
+
                 }
-        },[peer , handletrackwithstream])
+        },[peer , handletrackwithstream , handlenegotiation])
     return (
 
         <PeerContext.Provider value={{peer , createOffer , createAnswer , setremoteans , sendStream , remotestream}}>

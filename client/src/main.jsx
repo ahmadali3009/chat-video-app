@@ -23,12 +23,11 @@ const router = createBrowserRouter([
   
 ]);
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
     <SocketProvider>
       <PeerProvider>
     <RouterProvider router={router} />
     <App />
     </PeerProvider>
     </SocketProvider>
-  </StrictMode>,
+  ,
 )
