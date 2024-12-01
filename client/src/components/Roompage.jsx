@@ -25,7 +25,7 @@ const Roompage = () => {
     const ans = await createAnswer(offer)
     console.log("answer creating...", ans)
     socket.emit("call-accepted", { emailID: From, ans })
-    sendStream(mystream)
+    // sendStream(mystream)
     setremoteemailid(From)
   }, [socket, createAnswer])
 
@@ -75,22 +75,22 @@ const Roompage = () => {
 
   }, [handlemystearm])
 
-  // let handlenegotiation = useCallback(()=>
-  //   {
-  //     let localOffer = peer.localDescription;
-  //     socket.emit("incomming-user", {emailID:remoteemailid , offer:localOffer})
-  //   },[peer.localDescription , socket , remoteemailid])
+  let handlenegotiation = useCallback(()=>
+    {
+      let localOffer = peer.localDescription;
+      socket.emit("incomming-user", {emailID:remoteemailid , offer:localOffer})
+    },[peer.localDescription , socket , remoteemailid])
 
-  //   useEffect(()=>
-  //     {
-  //         peer.addEventListener("negotiationneeded" , handlenegotiation)
+    useEffect(()=>
+      {
+          peer.addEventListener("negotiationneeded" , handlenegotiation)
 
-  //         return ()=>
-  //             {
-  //                 peer.removeEventListener("negotiationneeded" , handlenegotiation)
+          return ()=>
+              {
+                  peer.removeEventListener("negotiationneeded" , handlenegotiation)
 
-  //             }
-  //     },[peer , handlenegotiation])
+              }
+      },[peer , handlenegotiation])
 
   return (
     <div>

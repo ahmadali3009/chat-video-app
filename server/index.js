@@ -27,8 +27,11 @@ io.on("connection" , (socket)=>{
             console.log("id checking for room", socketidcheck)
             socket.join(roomID);
             socket.emit("joined-room" , {roomID})
-            socket.broadcast.to(roomID).emit("user-joined" , {emailID});
+            setTimeout(() => {
+                socket.to(roomID).emit("user-joined", { emailID });
+            }, 100);        
         })
+
         socket.on("incomming-user" , (data)=>{
             let {offer , emailID} = data
             console.log("offer",offer , "user incomming" , emailID)
