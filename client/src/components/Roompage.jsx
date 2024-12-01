@@ -36,6 +36,8 @@ const Roompage = () => {
 
   }, [setremoteans])
 
+
+
   useEffect(() => {
     if (!socket) {
       console.error("Socket is not initialized");
@@ -72,6 +74,23 @@ const Roompage = () => {
     handlemystearm()
 
   }, [handlemystearm])
+
+  // let handlenegotiation = useCallback(()=>
+  //   {
+  //     let localOffer = peer.localDescription;
+  //     socket.emit("incomming-user", {emailID:remoteemailid , offer:localOffer})
+  //   },[peer.localDescription , socket , remoteemailid])
+
+  //   useEffect(()=>
+  //     {
+  //         peer.addEventListener("negotiationneeded" , handlenegotiation)
+
+  //         return ()=>
+  //             {
+  //                 peer.removeEventListener("negotiationneeded" , handlenegotiation)
+
+  //             }
+  //     },[peer , handlenegotiation])
 
   return (
     <div>

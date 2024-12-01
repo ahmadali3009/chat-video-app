@@ -10,10 +10,13 @@ let io = new Server(
 )
 let server = express();
 let port = 8080
+
+
+
 let emailtosocketid = new Map()
 let socketidtoemail = new Map()
 io.on("connection" , (socket)=>{
-    console.log("connection is connected")
+        
     socket.on("join-room" , (data)=>
         {
             let {roomID , emailID} = data
@@ -32,8 +35,12 @@ io.on("connection" , (socket)=>{
             let fromEmail = socketidtoemail.get(socket.id)
             let socketid = emailtosocketid.get(emailID)
             console.log("socketid---",socketid , "fromEmail----" , fromEmail)
-            socket.to(socketid).emit("incomming-usercall" , {From: fromEmail , offer})
-            console.log("Connected sockets:", io.sockets.sockets.keys());
+            if (io.sockets.sockets.get(socketid)) {
+                socket.to(socketid).emit("incomming-usercall", { From: fromEmail, offer });
+                console.log(`Emitted 'incomming-usercall' to socketid: ${socketid}`);
+            } else {
+                console.error(`Socket ID ${socketid} is not connected.`);
+            }            console.log("Connected sockets:", io.sockets.sockets.keys());
         })
         
         socket.on("call-accepted" , (data)=>{
@@ -43,9 +50,10 @@ io.on("connection" , (socket)=>{
         })
 
        
-    socket.on("disconnect" , ()=>{
-        console.log("connection is not connect")
-    });
+        console.log(`Socket connected: ${socket.id}`);
+        socket.on("disconnect", (reason) => {
+            console.log(`Socket disconnected: ${socket.id}, Reason: ${reason}`);
+        });
 })
 
 server.listen(port, ()=>{
