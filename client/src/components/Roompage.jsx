@@ -25,17 +25,26 @@ const Roompage = () => {
     const ans = await createAnswer(offer)
     console.log("answer creating...", ans)
     socket.emit("call-accepted", { emailID: From, ans })
-    // sendStream(mystream)
     setremoteemailid(From)
   }, [socket, createAnswer])
 
   let handlecallaccepted = useCallback(async (data) => {
-    let { ans } = data
-    console.log("call got accecpted", ans)
-    await setremoteans(ans)
-
-  }, [setremoteans])
-
+    let { ans } = data;
+    console.log("Call got accepted", ans);
+  
+    // Check signaling state before setting remote description
+    if (peer.signalingState !== "have-local-offer") {
+      console.error("Cannot set remote answer. Current state:", peer.signalingState);
+      return;
+    }
+  
+    try {
+      await peer.setRemoteDescription(new RTCSessionDescription(ans));
+      console.log("Remote answer set successfully.");
+    } catch (error) {
+      console.error("Failed to set remote answer:", error);
+    }
+  }, [peer]);
 
 
   useEffect(() => {
@@ -68,6 +77,7 @@ const Roompage = () => {
     })
     console.log("Camera started");
     setmystream(stream)
+
   }, [])
 
   useEffect(() => {
@@ -77,9 +87,10 @@ const Roompage = () => {
 
   let handlenegotiation = useCallback(()=>
     {
-      let localOffer = peer.localDescription;
-      socket.emit("incomming-user", {emailID:remoteemailid , offer:localOffer})
-    },[peer.localDescription , socket , remoteemailid])
+      let localOffer =  peer.localDescription; 
+      console.log("localoffer",localOffer)
+      socket.emit("incomming-user", {offer:localOffer, emailID:remoteemailid})
+    },[peer , socket , remoteemailid])
 
     useEffect(()=>
       {
@@ -98,7 +109,7 @@ const Roompage = () => {
       <h1>the person email you are connected to {remoteemailid}</h1>
       <Reactplayer url={mystream} playing muted />
       <Reactplayer url={remotestream} playing />
-      <button onClick={e => sendStream(mystream)} >Connected to user video</button>
+      <button onClick={(e) => sendStream(mystream)} >Connected to user video</button>
     </div>
   )
 }

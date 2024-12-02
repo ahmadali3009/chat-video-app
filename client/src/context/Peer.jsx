@@ -24,6 +24,8 @@ export let PeerProvider = (props) => {
         } 
     let setremoteans = async (ans)=>{
         await peer.setRemoteDescription(ans)
+        console.log("what type of ans i am getting" , ans)
+
     }
     let sendStream = async (stream)=>
         {
