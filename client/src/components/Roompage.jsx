@@ -29,22 +29,12 @@ const Roompage = () => {
   }, [socket, createAnswer])
 
   let handlecallaccepted = useCallback(async (data) => {
-    let { ans } = data;
-    console.log("Call got accepted", ans);
-  
-    // Check signaling state before setting remote description
-    if (peer.signalingState !== "have-local-offer") {
-      console.error("Cannot set remote answer. Current state:", peer.signalingState);
-      return;
-    }
-  
-    try {
-      await peer.setRemoteDescription(new RTCSessionDescription(ans));
-      console.log("Remote answer set successfully.");
-    } catch (error) {
-      console.error("Failed to set remote answer:", error);
-    }
-  }, [peer]);
+    let { ans } = data
+    console.log("call got accecpte", ans)
+    await setremoteans(ans)
+
+  }, [socket, setremoteans])
+
 
 
   useEffect(() => {
@@ -54,13 +44,13 @@ const Roompage = () => {
     }
     socket.on("user-joined", handlenewuser)
     socket.on("incomming-usercall", handleincommingusercall)
-    socket.on("call-accepted", handlecallaccepted)
+    socket.on("call-accepte", handlecallaccepted)
 
     // Cleanup function
     return () => {
       socket.off("user-joined", handlenewuser);
       socket.off("incomming-usercall", handleincommingusercall);
-      socket.off("call-accepted", handlecallaccepted);
+      socket.off("call-accepte", handlecallaccepted);
     };
   }, [socket, handlenewuser, handleincommingusercall, handlecallaccepted])
 
@@ -85,11 +75,22 @@ const Roompage = () => {
 
   }, [handlemystearm])
 
-  let handlenegotiation = useCallback(()=>
+  let handlenegotiation = useCallback(async ()=>
     {
-      let localOffer =  peer.localDescription; 
-      console.log("localoffer",localOffer)
-      socket.emit("incomming-user", {offer:localOffer, emailID:remoteemailid})
+      try {
+        console.log("Negotiation needed");
+        if (peer.signalingState === "stable") {
+          console.warn("Already in stable state. No need to renegotiate.");
+          return;
+        }
+        const newOffer = await peer.localDescription
+        console.log("local offer:", newOffer);
+    
+        // Send the new offer to the remote peer
+        socket.emit("incomming-user", { offer: newOffer, emailID: remoteemailid });
+      } catch (error) {
+        console.error("Error during negotiation:", error);
+      }
     },[peer , socket , remoteemailid])
 
     useEffect(()=>

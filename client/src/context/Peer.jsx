@@ -23,8 +23,16 @@ export let PeerProvider = (props) => {
             return ans
         } 
     let setremoteans = async (ans)=>{
-        await peer.setRemoteDescription(ans)
-        console.log("what type of ans i am getting" , ans)
+        if (peer.signalingState === "have-local-offer") {
+            try {
+              await peer.setRemoteDescription(ans);
+              console.log("Remote answer set successfully:", ans);
+            } catch (error) {
+              console.error("Failed to set remote answer:", error);
+            }
+          } else {
+            console.warn("Cannot set remote answer. Current signaling state:", peer.signalingState);
+          }
 
     }
     let sendStream = async (stream)=>
