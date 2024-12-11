@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useSocket } from "../context/Socket"
 import { usePeer } from "../context/Peer"
 import Reactplayer from "react-player"
@@ -6,6 +6,8 @@ const Roompage = () => {
   let [mystream, setmystream] = useState(null);
   let [remoteemailid , setremoteemailid] = useState();
   let { socket } = useSocket()
+  const localVideoRef = useRef(null);
+  const remoteVideoRef = useRef(null);
   let { createOffer, peer, createAnswer, setremoteans, sendStream, remotestream } = usePeer()
   const handlenewuser = useCallback(
     async (data) => {
@@ -55,43 +57,54 @@ const Roompage = () => {
   }, [socket, handlenewuser, handleincommingusercall, handlecallaccepted])
 
   let handlemystearm = useCallback(async () => {
-    navigator.mediaDevices.enumerateDevices().then(devices => {
+    try {
+      // Log available devices
+      const devices = await navigator.mediaDevices.enumerateDevices();
       console.log("Available devices:", devices);
-  });
-    navigator.permissions.query({ name: "camera" }).then(permissionStatus => {
+  
+      // Check camera permissions
+      const permissionStatus = await navigator.permissions.query({ name: "camera" });
       console.log("Camera permission status:", permissionStatus.state);
-    });
-    let stream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-      video: true,
-    })
-    console.log("Camera started");
-    setmystream(stream)
-
-  }, [])
+  
+      // Access media stream
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: true,
+      });
+      console.log("Camera started");
+      setmystream(stream);
+    } catch (error) {
+      console.error("Error accessing media devices:", error);
+    }
+  }, []);
 
   useEffect(() => {
     handlemystearm()
 
   }, [handlemystearm])
 
-  let handlenegotiation = useCallback(async ()=>
-    {
-      try {
-        console.log("Negotiation needed");
-        if (peer.signalingState === "stable") {
-          console.warn("Already in stable state. No need to renegotiate.");
-          return;
-        }
-        const newOffer = await peer.localDescription
-        console.log("local offer:", newOffer);
-    
-        // Send the new offer to the remote peer
-        socket.emit("incomming-user", { offer: newOffer, emailID: remoteemailid });
-      } catch (error) {
-        console.error("Error during negotiation:", error);
+  let handlenegotiation = useCallback(async () => {
+    try {
+      console.log("Negotiation needed");
+      
+      // Only negotiate if signaling state is stable
+      if (peer.signalingState !== "stable") {
+        console.warn("Signaling state not stable:", peer.signalingState);
+        return; // Wait until stable to renegotiate
       }
-    },[peer , socket , remoteemailid])
+  
+      // Create a new offer
+      const newOffer = await peer.createOffer();
+      await peer.setLocalDescription(newOffer);
+      console.log("Local offer created and set:", newOffer);
+  
+      // Send the offer to the remote peer
+      socket.emit("incomming-user", { offer: newOffer, emailID: remoteemailid });
+    } catch (error) {
+      console.error("Error during negotiation:", error);
+    }
+  }, [peer, socket, remoteemailid]);
+  
 
     useEffect(()=>
       {
@@ -103,13 +116,34 @@ const Roompage = () => {
 
               }
       },[peer , handlenegotiation])
+      useEffect(() => {
+        if (localVideoRef.current && mystream) {
+          localVideoRef.current.srcObject = mystream;
+        }
+        if (remoteVideoRef.current && remotestream) {
+          remoteVideoRef.current.srcObject = remotestream;
+        }
+      }, [mystream, remotestream]);
 
   return (
     <div>
       <h1> Video Audia and chat room </h1>
       <h1>the person email you are connected to {remoteemailid}</h1>
-      <Reactplayer url={mystream} playing muted />
-      <Reactplayer url={remotestream} playing />
+        {/* Local video */}
+        <video
+        ref={localVideoRef}
+        autoPlay
+        muted
+        style={{ width: '300px', border: '1px solid black', margin: '10px' }}
+      />
+
+      {/* Remote video */}
+      <video
+        ref={remoteVideoRef}
+        autoPlay
+        style={{ width: '300px', border: '1px solid black', margin: '10px' }}
+      />
+
       <button onClick={(e) => sendStream(mystream)} >Connected to user video</button>
     </div>
   )
