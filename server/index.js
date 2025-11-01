@@ -12,7 +12,6 @@ let server = express();
 let port = 8080
 
 
-
 let emailtosocketid = new Map()
 let socketidtoemail = new Map()
 io.on("connection", (socket) => {
