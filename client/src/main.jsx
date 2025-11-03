@@ -10,7 +10,7 @@ import {
 } from "react-router-dom";
 import Homepage from './components/Homepage.jsx';
 import Roompage from './components/roompage.jsx'
-
+//app router
 const router = createBrowserRouter([
   {
     path: "/",
